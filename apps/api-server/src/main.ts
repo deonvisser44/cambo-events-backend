@@ -34,7 +34,6 @@ function bootstrapApiDocumentation(app: INestApplication): void {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
-  console.log(process.env.POSTGRES_PASSWORD);
   const configService: ConfigService = app.get(ConfigService);
   const PORT: string = configService.get('server.port');
   const HOST: string = configService.get('server.host');

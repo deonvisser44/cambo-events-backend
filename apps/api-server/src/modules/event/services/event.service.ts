@@ -12,7 +12,6 @@ export class EventService {
   ) {}
 
   async getEventsByParams(eventParams: EventParamsDto) {
-    console.log({ eventParams });
     return this.eventRepository.queryEventsByParams(eventParams);
   }
 

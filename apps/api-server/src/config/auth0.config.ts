@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('dotenv').config();
 import { registerAs } from '@nestjs/config';
 import { IAuth0Options } from 'libs/auth0/src';
 
