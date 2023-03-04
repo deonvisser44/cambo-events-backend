@@ -1,1 +1,0 @@
-export const AUTH0_MODULE_OPTIONS = Symbol('AUTH0_MODULE_OPTIONS');

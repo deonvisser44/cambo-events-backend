@@ -17,15 +17,10 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 function bootstrapApiDocumentation(app: INestApplication): void {
   const config = new DocumentBuilder()
     .setTitle('API documentation')
-    .addSecurity('Auth0AccessToken', {
+    .addSecurity('AccessToken', {
       type: 'http',
       scheme: 'bearer',
       bearerFormat: 'JWT',
-    })
-    .addSecurity('Auth0ActionSecret', {
-      name: 'auth0_action_secret',
-      type: 'apiKey',
-      in: 'header',
     })
     .build();
   const document = SwaggerModule.createDocument(app, config);

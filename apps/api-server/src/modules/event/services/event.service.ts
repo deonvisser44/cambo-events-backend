@@ -11,13 +11,23 @@ export class EventService {
     private readonly savedEventRepository: SavedEventRepository,
   ) {}
 
-  async getEventsByParams(eventParams: EventParamsDto) {
-    return this.eventRepository.queryEventsByParams(eventParams);
+  async getEventsByParams(user_id: string, eventParams: EventParamsDto) {
+    return this.eventRepository.queryEventsByParams({
+      ...eventParams,
+      host_id: user_id,
+    });
   }
 
-  async createEvent(createEventDto: CreateEventDto) {
-    const newEvent = this.eventRepository.create({ ...createEventDto });
+  async createEvent(user_id: string, createEventDto: CreateEventDto) {
+    const newEvent = this.eventRepository.create({
+      ...createEventDto,
+      host_id: user_id,
+    });
     return newEvent;
+  }
+
+  async deleteEvent(user_id: string, event_id: string) {
+    await this.eventRepository.orm.delete({ host_id: user_id, id: event_id });
   }
 
   async getUserSavedEvents(user_id: string) {

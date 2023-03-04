@@ -18,8 +18,6 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@app/auth0": ["libs/auth0/src"],
-      "@app/auth0/*": ["libs/auth0/src/*"],
       "@app/dynamic-module": ["libs/dynamic-module/src"],
       "@app/dynamic-module/*": ["libs/dynamic-module/src/*"]
     }

@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { GetUserByIdDto } from '../../user/dto/get-user.dto';
+import { ExtractUserId } from 'apps/api-server/src/shared/decorators/extract-user-id.decorator';
 import { CreateEventDto } from '../dto/create-event.dto';
 import { DeleteSavedEventDto } from '../dto/delete-saved-event-params.dto';
 import { EventParamsDto } from '../dto/get-events-params.dto';
@@ -12,27 +12,47 @@ export class EventController {
   constructor(private readonly eventService: EventService) {}
 
   @Get()
-  async getEventsByParams(@Query() eventParams: EventParamsDto) {
-    return this.eventService.getEventsByParams(eventParams);
+  async getEventsByParams(
+    @Query() eventParams: EventParamsDto,
+    @ExtractUserId() user_id: string,
+  ) {
+    return this.eventService.getEventsByParams(user_id, eventParams);
   }
 
   @Get('/saved')
-  async getUserSavedEvents(@Query() { user_id }: GetUserByIdDto) {
+  async getUserSavedEvents(@ExtractUserId() user_id: string) {
     return this.eventService.getUserSavedEvents(user_id);
   }
 
   @Post()
-  async createEvent(@Body() createEventDto: CreateEventDto) {
-    return this.eventService.createEvent(createEventDto);
-  }
-
-  @Post('/saved')
-  async saveEventForUser(@Query() { event_id, user_id }: DeleteSavedEventDto) {
-    return this.eventService.saveEventForUser(user_id, event_id);
+  async createEvent(
+    @Body() createEventDto: CreateEventDto,
+    @ExtractUserId() user_id: string,
+  ) {
+    return this.eventService.createEvent(user_id, createEventDto);
   }
 
   @Delete()
-  async deleteSavedEvent(@Query() { event_id, user_id }: DeleteSavedEventDto) {
+  async deleteEvent(
+    @Query() { event_id }: DeleteSavedEventDto,
+    @ExtractUserId() user_id: string,
+  ) {
+    //
+  }
+
+  @Post('/saved')
+  async saveEventForUser(
+    @Query() { event_id }: DeleteSavedEventDto,
+    @ExtractUserId() user_id: string,
+  ) {
+    return this.eventService.saveEventForUser(user_id, event_id);
+  }
+
+  @Delete('/saved')
+  async deleteSavedEvent(
+    @Query() { event_id }: DeleteSavedEventDto,
+    @ExtractUserId() user_id: string,
+  ) {
     return this.eventService.deleteSavedEvent(user_id, event_id);
   }
 }

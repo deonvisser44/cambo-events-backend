@@ -17,6 +17,7 @@ export class User extends BaseEntity {
 
   @Column({
     type: 'varchar',
+    nullable: true,
   })
   name?: string;
 
@@ -26,14 +27,6 @@ export class User extends BaseEntity {
   email?: string;
 
   @Column({
-    type: 'varchar',
-    length: 255,
-    nullable: true,
-    unique: true,
-  })
-  auth0_id?: string;
-
-  @Column({
     type: 'jsonb',
     nullable: true,
   })
@@ -41,6 +34,7 @@ export class User extends BaseEntity {
 
   @Column({
     type: 'jsonb',
+    nullable: true,
   })
   primary_location?: EventLocation;
 

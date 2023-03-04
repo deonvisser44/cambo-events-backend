@@ -1,9 +1,8 @@
-import { Body, Controller, Get, Put, Query, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { UserAuthContext } from '../../auth/domain/user-auth-context.model';
-import { HasAuth0ActionSecret } from '../../auth/guards/has-auth0-action-secret/has-auth0-action-secret.guard';
-import { GetUserByIdDto } from '../dto/get-user.dto';
-import { SyncUserAccountDto } from '../dto/sync-user-account.dto';
+import { Body, Controller, Get, Post, Put } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { ExtractUserId } from 'apps/api-server/src/shared/decorators/extract-user-id.decorator';
+import { EventImageData } from '../../event/domain/event-image-data.model';
+import { EventLocation } from '../domain/event-location.model';
 import { UserService } from '../services/user.service';
 
 @Controller('user')
@@ -11,21 +10,34 @@ import { UserService } from '../services/user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Put('/account-sync')
-  @ApiSecurity('Auth0ActionSecret')
-  @ApiOperation({
-    summary:
-      'DO NOT USE IT FROM THE FRONT_END! This route should be used only by the Auth0s "post-login" hook.',
-  })
-  @UseGuards(HasAuth0ActionSecret)
-  async syncUserAccount(
-    @Body() { auth0_id, email }: SyncUserAccountDto,
-  ): Promise<UserAuthContext> {
-    return this.userService.syncUserAccount({ auth0_id, email });
+  @Get()
+  async getUserById(@ExtractUserId() user_id: string) {
+    return this.userService.getUserById(user_id);
   }
 
-  @Get()
-  async getUserById(@Query() { user_id }: GetUserByIdDto) {
-    return this.userService.getUserById(user_id);
+  @Put('/primary-location')
+  async updatePrimaryLocation(
+    @Body() location: EventLocation,
+    @ExtractUserId() user_id: string,
+  ) {
+    return this.userService.updatePrimaryLocation(user_id, location);
+  }
+
+  @Put('/image')
+  async updateImage(
+    @Body() image: EventImageData,
+    @ExtractUserId() user_id: string,
+  ) {
+    return this.userService.updateProfileImage(user_id, image);
+  }
+
+  @Post('/login')
+  async logUserIn(@Body() { credential }: { credential: any }) {
+    return this.userService.loginUser(credential);
+  }
+
+  @Post('/sign-up')
+  async signUserUp(@Body() { credential }: { credential: any }) {
+    return this.userService.signUpUser(credential);
   }
 }

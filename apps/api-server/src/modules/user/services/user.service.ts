@@ -1,43 +1,87 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Auth0ManagementService } from 'libs/auth0/src';
-import { UserAuthContext } from '../../auth/domain/user-auth-context.model';
-import { SyncUserAccountDto } from '../dto/sync-user-account.dto';
+import { OAuth2Client } from 'google-auth-library';
 import { User } from '../entities/user.entity';
 import { UserRepository } from '../repositories/user.repository';
+import * as jwt from 'jsonwebtoken';
+import { EventLocation } from '../domain/event-location.model';
+import { EventImageData } from '../../event/domain/event-image-data.model';
 
 @Injectable()
 export class UserService {
-  constructor(
-    private readonly userRepository: UserRepository,
-    private readonly auth0ManagementService: Auth0ManagementService,
-  ) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
   async getUserById(user_id: string) {
     return this.userRepository.orm.findOneBy({ id: user_id });
   }
 
-  async syncUserAccount({
-    auth0_id,
-    email,
-  }: SyncUserAccountDto): Promise<UserAuthContext> {
-    const [auth0User] = await this.consistentlyGetUser(auth0_id);
-    if (!auth0User) throw new NotFoundException('User does not exit in Auth0!');
-    const { id } = await this.updateOrCreateUser({ auth0_id, email });
-    return { id };
+  async verifyGoogleToken(token: string) {
+    try {
+      const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+      const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      return { payload: ticket.getPayload() };
+    } catch (error) {
+      return { error: 'Invalid user detected. Please try again' };
+    }
   }
 
-  private async consistentlyGetUser(auth0_id: string): Promise<[any]> {
-    const auth0UserPromise = this.auth0ManagementService
-      .getUser({ id: auth0_id })
-      .catch(() => undefined);
-    const [auth0User] = await Promise.all([auth0UserPromise]);
-    return [auth0User];
+  async loginUser(token: string) {
+    console.log('login called');
+    if (token) {
+      const verificationResponse = await this.verifyGoogleToken(token);
+      const profile = verificationResponse?.payload;
+      const existingUser = await this.userRepository.orm.findOneBy({
+        email: profile.email,
+      });
+      if (!existingUser) {
+        throw new NotFoundException(
+          `User with email ${profile.email} does not exist!`,
+        );
+      }
+      return {
+        user: {
+          id: existingUser.id,
+          token: jwt.sign(
+            { email: existingUser.email },
+            process.env.JWT_SECRET,
+            {
+              expiresIn: '1d',
+            },
+          ),
+        },
+      };
+    }
   }
 
-  private async updateOrCreateUser({
-    auth0_id,
-    email,
-  }: SyncUserAccountDto): Promise<User> {
-    return await this.userRepository.upsert({ auth0_id, email }, ['auth0_id']);
+  async signUpUser(token: string) {
+    console.log('sign up called');
+    if (token) {
+      const verificationResponse = await this.verifyGoogleToken(token);
+      const profile = verificationResponse?.payload;
+      const newUser = new User({
+        email: profile.email,
+        name: profile.given_name,
+      });
+      const savedUser = await this.userRepository.create(newUser);
+      console.log({ jwt, profile });
+      return {
+        user: {
+          id: savedUser.id,
+          token: jwt.sign({ email: savedUser.email }, process.env.JWT_SECRET, {
+            expiresIn: '1d',
+          }),
+        },
+      };
+    }
+  }
+
+  async updatePrimaryLocation(user_id: string, location: EventLocation) {
+    await this.userRepository.update(user_id, { primary_location: location });
+  }
+
+  async updateProfileImage(user_id: string, image: EventImageData) {
+    await this.userRepository.update(user_id, { image });
   }
 }
