@@ -44,10 +44,10 @@ export class UserService {
         user: {
           id: existingUser.id,
           token: jwt.sign(
-            { email: existingUser.email },
+            { email: existingUser.email, id: existingUser.id },
             process.env.JWT_SECRET,
             {
-              expiresIn: '1d',
+              expiresIn: '5d',
             },
           ),
         },
@@ -69,9 +69,13 @@ export class UserService {
       return {
         user: {
           id: savedUser.id,
-          token: jwt.sign({ email: savedUser.email }, process.env.JWT_SECRET, {
-            expiresIn: '1d',
-          }),
+          token: jwt.sign(
+            { email: savedUser.email, id: savedUser.id },
+            process.env.JWT_SECRET,
+            {
+              expiresIn: '5d',
+            },
+          ),
         },
       };
     }

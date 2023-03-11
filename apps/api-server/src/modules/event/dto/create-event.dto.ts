@@ -34,10 +34,6 @@ export class CreateEventDto {
   @IsDate()
   end_date: Date;
 
-  @IsNotEmpty()
-  @IsString()
-  host_id: string;
-
   @IsOptional()
   @Type(() => EventImageData)
   image: EventImageData;

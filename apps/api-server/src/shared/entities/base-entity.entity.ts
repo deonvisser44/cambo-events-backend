@@ -10,8 +10,8 @@ export class BaseEntity {
   id?: string;
 
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
-  created_at?: string;
+  created_at?: Date;
 
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
-  updated_at?: string;
+  updated_at?: Date;
 }

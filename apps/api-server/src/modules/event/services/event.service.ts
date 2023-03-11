@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateEventDto } from '../dto/create-event.dto';
 import { EventParamsDto } from '../dto/get-events-params.dto';
+import { UpdateEventDto } from '../dto/update-event.dto';
 import { EventRepository } from '../repositories/event.repository';
 import { SavedEventRepository } from '../repositories/saved-event.repository';
 
@@ -11,11 +12,8 @@ export class EventService {
     private readonly savedEventRepository: SavedEventRepository,
   ) {}
 
-  async getEventsByParams(user_id: string, eventParams: EventParamsDto) {
-    return this.eventRepository.queryEventsByParams({
-      ...eventParams,
-      host_id: user_id,
-    });
+  async getEventsByParams(eventParams: EventParamsDto) {
+    return this.eventRepository.queryEventsByParams(eventParams);
   }
 
   async createEvent(user_id: string, createEventDto: CreateEventDto) {
@@ -24,6 +22,21 @@ export class EventService {
       host_id: user_id,
     });
     return newEvent;
+  }
+
+  async updateEvent(user_id: string, updateEventDto: UpdateEventDto) {
+    const existingEvent = await this.eventRepository.orm.findOne({
+      where: { id: updateEventDto.id },
+    });
+    if (existingEvent.host_id !== user_id) {
+      throw new UnauthorizedException(
+        `User with ID: ${user_id} is not host of event with ID: ${updateEventDto.id}`,
+      );
+    }
+    const updatedEvent = await this.eventRepository.update(updateEventDto.id, {
+      ...updateEventDto,
+    });
+    return updatedEvent;
   }
 
   async deleteEvent(user_id: string, event_id: string) {
