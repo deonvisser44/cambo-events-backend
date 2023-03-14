@@ -56,7 +56,7 @@ export class EventController {
 
   @Post('/saved')
   async saveEventForUser(
-    @Query() { event_id }: DeleteSavedEventDto,
+    @Body() { event_id }: DeleteSavedEventDto,
     @ExtractUserId() user_id: string,
   ) {
     return this.eventService.saveEventForUser(user_id, event_id);
