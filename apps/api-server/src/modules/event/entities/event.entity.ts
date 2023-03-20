@@ -65,7 +65,7 @@ export class Event extends BaseEntity {
   })
   location: EventLocation;
 
-  @ManyToOne(() => User, (user) => user.hosted_events)
+  @ManyToOne(() => User, (user) => user.hosted_events, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'host_id' })
   host?: User;
 

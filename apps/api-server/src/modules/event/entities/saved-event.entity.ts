@@ -25,11 +25,13 @@ export class SavedEvent extends BaseEntity {
   })
   event_id?: string;
 
-  @ManyToOne(() => User, (user) => user.saved_events)
+  @ManyToOne(() => User, (user) => user.saved_events, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user?: User;
 
-  @ManyToOne(() => Event, (event) => event.saved_events)
+  @ManyToOne(() => Event, (event) => event.saved_events, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'event_id' })
   event?: Event;
 }
