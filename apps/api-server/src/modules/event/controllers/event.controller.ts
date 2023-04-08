@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Put,
   Query,
@@ -19,6 +20,11 @@ import { EventService } from '../services/event.service';
 @ApiTags('event')
 export class EventController {
   constructor(private readonly eventService: EventService) {}
+
+  @Get(':event_id/shared')
+  async getEventById(@Param() { event_id }: { event_id: string }) {
+    return this.eventService.getEventById(event_id);
+  }
 
   @Get()
   async getEventsByParams(@Query() eventParams: EventParamsDto) {

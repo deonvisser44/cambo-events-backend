@@ -12,6 +12,10 @@ export class EventService {
     private readonly savedEventRepository: SavedEventRepository,
   ) {}
 
+  async getEventById(event_id: string) {
+    return this.eventRepository.orm.findOneByOrFail({ id: event_id });
+  }
+
   async getEventsByParams(eventParams: EventParamsDto) {
     return this.eventRepository.queryEventsByParams(eventParams);
   }
