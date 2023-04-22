@@ -4,6 +4,7 @@ import { Connection } from 'typeorm';
 import { BaseRepository } from '../../../shared/repositories/base-repository.repository';
 import { EventParamsDto } from '../dto/get-events-params.dto';
 import { Event } from '../entities/event.entity';
+import { EventCategory } from '../domain/event-categories.enum';
 
 @Injectable()
 export class EventRepository extends BaseRepository<Event> {
@@ -12,13 +13,18 @@ export class EventRepository extends BaseRepository<Event> {
   }
 
   async queryEventsByParams(eventParams: EventParamsDto) {
-    const { from_date, to_date, category, host_id } = eventParams;
+    const { from_date, to_date, category, host_id, page } = eventParams;
     const startingDate =
       from_date ?? DateTime.local({ zone: 'UTC' }).toJSDate();
+    const take = 20;
+    const pageNumber = page ?? 1;
+    const skip = take * pageNumber - take;
     const query = this.orm
       .createQueryBuilder('event')
       .where('event.start_date >= :from_date', { from_date: startingDate })
-      .orderBy('event.start_date', 'ASC');
+      .orderBy('event.start_date', 'ASC')
+      .take(take)
+      .skip(skip);
 
     if (host_id) {
       query.andWhere('event.host_id = :host_id', { host_id });
@@ -26,7 +32,7 @@ export class EventRepository extends BaseRepository<Event> {
     if (to_date) {
       query.andWhere('event.start_date <= :to_date', { to_date });
     }
-    if (category) {
+    if (category && category !== EventCategory.ALL) {
       query.andWhere('event.category @> :categories', {
         categories: [category],
       });

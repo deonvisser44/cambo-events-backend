@@ -35,16 +35,23 @@ export class UserService {
       const existingUser = await this.userRepository.orm.findOneBy({
         email: profile.email,
       });
+      let savedUser;
+      // only create new user if no user with same email exists
       if (!existingUser) {
-        throw new NotFoundException(
-          `User with email ${profile.email} does not exist!`,
-        );
+        const newUser = new User({
+          email: profile.email,
+          name: profile.given_name,
+        });
+        savedUser = await this.userRepository.create(newUser);
       }
       return {
         user: {
-          id: existingUser.id,
+          id: existingUser ? existingUser.id : savedUser.id,
           token: jwt.sign(
-            { email: existingUser.email, id: existingUser.id },
+            {
+              email: profile.email,
+              id: existingUser ? existingUser.id : savedUser.id,
+            },
             process.env.JWT_SECRET,
             {
               expiresIn: '5d',
@@ -60,20 +67,30 @@ export class UserService {
     if (token) {
       const verificationResponse = await this.verifyGoogleToken(token);
       const profile = verificationResponse?.payload;
-      const newUser = new User({
-        email: profile.email,
-        name: profile.given_name,
+      const existingUser = await this.userRepository.orm.findOne({
+        where: { email: profile.email },
       });
-      const savedUser = await this.userRepository.create(newUser);
+      let savedUser;
+      // only create new user if no user with same email exists
+      if (!existingUser) {
+        const newUser = new User({
+          email: profile.email,
+          name: profile.given_name,
+        });
+        savedUser = await this.userRepository.create(newUser);
+      }
       console.log({ jwt, profile });
       return {
         user: {
-          id: savedUser.id,
+          id: existingUser ? existingUser.id : savedUser.id,
           token: jwt.sign(
-            { email: savedUser.email, id: savedUser.id },
+            {
+              email: profile.email,
+              id: existingUser ? existingUser.id : savedUser.id,
+            },
             process.env.JWT_SECRET,
             {
-              expiresIn: '5d',
+              expiresIn: '30d',
             },
           ),
         },

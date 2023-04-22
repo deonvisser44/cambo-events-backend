@@ -1,4 +1,5 @@
 export enum EventCategory {
+  ALL = 'ALL',
   ART = 'ART',
   MUSIC = 'MUSIC',
   DANCE = 'DANCE',
