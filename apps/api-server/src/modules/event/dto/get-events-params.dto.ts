@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsEnum, IsNumber, IsOptional, IsUUID } from 'class-validator';
+import {
+  IsDate,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 import { EventCategory } from '../domain/event-categories.enum';
 
 export class EventParamsDto {
@@ -23,4 +30,8 @@ export class EventParamsDto {
   @IsOptional()
   @IsNumber()
   page?: number;
+
+  @IsOptional()
+  @IsString()
+  area?: string;
 }

@@ -13,7 +13,7 @@ export class EventRepository extends BaseRepository<Event> {
   }
 
   async queryEventsByParams(eventParams: EventParamsDto) {
-    const { from_date, to_date, category, host_id, page } = eventParams;
+    const { from_date, to_date, category, host_id, page, area } = eventParams;
     const startingDate =
       from_date ?? DateTime.local({ zone: 'UTC' }).toJSDate();
     const take = 20;
@@ -36,6 +36,9 @@ export class EventRepository extends BaseRepository<Event> {
       query.andWhere('event.category @> :categories', {
         categories: [category],
       });
+    }
+    if (area) {
+      query.andWhere('event.area = :area', { area });
     }
     const eventsMatchingSearch = await query.getMany();
     return eventsMatchingSearch;

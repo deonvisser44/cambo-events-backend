@@ -37,4 +37,8 @@ export class CreateEventDto {
   @IsOptional()
   @Type(() => EventImageData)
   image: EventImageData;
+
+  @IsNotEmpty()
+  @IsString()
+  area: string;
 }
