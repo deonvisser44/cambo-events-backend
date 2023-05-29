@@ -32,7 +32,8 @@ export class Event extends BaseEntity {
 
   @Column({
     type: 'varchar',
-    nullable: false,
+    nullable: true,
+    default: null,
   })
   area?: string;
 

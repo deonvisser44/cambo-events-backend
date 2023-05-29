@@ -1,13 +1,13 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class updateTableEventAddColumnArea1685008708476
+export class updateTableEventsAddColumnArea1685363278270
   implements MigrationInterface
 {
-  name = 'updateTableEventAddColumnArea1685008708476';
+  name = 'updateTableEventsAddColumnArea1685363278270';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `ALTER TABLE "event" ADD "area" character varying NOT NULL`,
+      `ALTER TABLE "event" ADD COLUMN "area" character varying`,
     );
   }
 
