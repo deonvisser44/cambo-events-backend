@@ -10,6 +10,7 @@ import { configsArray } from './config';
 import { LoggerModule } from 'nestjs-pino';
 import { UserModule } from './modules/user/user.module';
 import { EventModule } from './modules/event/event.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { EventModule } from './modules/event/event.module';
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => config.get('pino'),
     }),
+    ScheduleModule.forRoot(),
     UserModule,
     EventModule,
   ],

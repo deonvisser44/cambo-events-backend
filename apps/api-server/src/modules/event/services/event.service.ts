@@ -4,6 +4,8 @@ import { EventParamsDto } from '../dto/get-events-params.dto';
 import { UpdateEventDto } from '../dto/update-event.dto';
 import { EventRepository } from '../repositories/event.repository';
 import { SavedEventRepository } from '../repositories/saved-event.repository';
+import { Cron } from '@nestjs/schedule';
+import { LessThan } from 'typeorm';
 
 @Injectable()
 export class EventService {
@@ -61,5 +63,13 @@ export class EventService {
 
   async deleteSavedEvent(user_id: string, event_id: string) {
     await this.savedEventRepository.orm.delete({ user_id, event_id });
+  }
+
+  @Cron('0 0 * * *')
+  async deletePastEvents() {
+    const currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() - 1);
+    const res = await this.eventRepository.orm.delete({ start_date: LessThan(currentDate) });
+    console.log('Ran CRON Job'), { res };
   }
 }
