@@ -35,6 +35,7 @@ export class UserService {
       const existingUser = await this.userRepository.orm.findOneBy({
         email: profile.email,
       });
+      console.log({ profile, existingUser });
       let savedUser;
       // only create new user if no user with same email exists
       if (!existingUser) {
