@@ -16,4 +16,5 @@ export enum EventCategory {
   CULTURAL = 'CULTURAL',
   WORKSHOP = 'WORKSHOP',
   TRADE_SHOW = 'TRADE_SHOW',
+  BOARD_GAME = 'BOARD_GAME',
 }
