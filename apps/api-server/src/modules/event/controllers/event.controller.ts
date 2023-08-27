@@ -49,10 +49,10 @@ export class EventController {
 
   @Delete()
   async deleteEvent(
-    @Query() { event_id }: DeleteSavedEventDto,
+    @Query() { id }: DeleteSavedEventDto,
     @ExtractUserId() user_id: string,
   ) {
-    return this.eventService.deleteEvent(user_id, event_id);
+    return this.eventService.deleteEvent(user_id, id);
   }
 
   @Get('/saved')
@@ -62,17 +62,17 @@ export class EventController {
 
   @Post('/saved')
   async saveEventForUser(
-    @Body() { event_id }: DeleteSavedEventDto,
+    @Body() { id }: DeleteSavedEventDto,
     @ExtractUserId() user_id: string,
   ) {
-    return this.eventService.saveEventForUser(user_id, event_id);
+    return this.eventService.saveEventForUser(user_id, id);
   }
 
   @Delete('/saved')
   async deleteSavedEvent(
-    @Query() { event_id }: DeleteSavedEventDto,
+    @Query() { id }: DeleteSavedEventDto,
     @ExtractUserId() user_id: string,
   ) {
-    return this.eventService.deleteSavedEvent(user_id, event_id);
+    return this.eventService.deleteSavedEvent(user_id, id);
   }
 }
